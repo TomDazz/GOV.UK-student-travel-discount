@@ -1,4 +1,4 @@
-As a student, I noticed how confusing it can be to apply for travel discounts online. This project explores the GOV.UK Design System and frontend tools by building a prototype for a student travel discount service
+As a student, I came up with the idea to make a website about travel discounts online to test some of my skills and get familiar with GOV.UK design systems. This project explores the GOV.UK Design System and frontend tools by building a prototype for a student travel discount service
 
 It focuses on:
 
