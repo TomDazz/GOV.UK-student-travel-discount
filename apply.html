@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="govuk-template">
+  <head>
+    <meta charset="utf-8">
+    <title>Application form - Student travel discount - GOV.UK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- your GOV.UK assets folder (adjust path only if your files are elsewhere) -->
+    <link rel="stylesheet" href="assets/govuk/govuk-frontend-5.12.0.min.css">
+  </head>
+  <body class="govuk-template__body">
+
+    <!-- Header -->
+<header class="govuk-header govuk-header--inverse" role="banner" data-module="govuk-header">
+  <div class="govuk-header__container govuk-width-container">
+    <div class="govuk-header__logo">
+      <a href="index.html" class="govuk-header__link govuk-header__link--homepage">
+        <img src="assets/govuk/assets/images/govuk-crest.svg" class="govuk-header__logotype-crown" width="36" height="32" alt="GOV.UK">
+        <span class="govuk-header__logotype-text">GOV.UK</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+
+    <main class="govuk-main-wrapper govuk-width-container" id="main-content">
+      <h1 class="govuk-heading-l">Your details</h1>
+
+      <!-- GOV.UK error summary (initially hidden) -->
+      <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" hidden>
+        <h2 class="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+        <div class="govuk-error-summary__body">
+          <ul class="govuk-list govuk-error-summary__list" id="error-list"></ul>
+        </div>
+      </div>
+
+      <form id="applicationForm" action="confirmation.html" method="post" novalidate>
+        <div class="govuk-form-group" id="group-full-name">
+          <label class="govuk-label" for="full-name">Full name</label>
+          <input class="govuk-input" id="full-name" name="full-name" type="text" aria-describedby="">
+        </div>
+
+        <div class="govuk-form-group" id="group-dob">
+          <label class="govuk-label" for="dob">Date of birth</label>
+          <input class="govuk-input" id="dob" name="dob" type="date" aria-describedby="">
+        </div>
+
+        <div class="govuk-form-group" id="group-student-id">
+          <label class="govuk-label" for="student-id">Student ID number</label>
+          <input class="govuk-input govuk-input--width-10" id="student-id" name="student-id" type="text" aria-describedby="">
+        </div>
+
+        <div class="govuk-form-group" id="group-photo">
+          <label class="govuk-label" for="photo">Upload a photo of your student ID (optional)</label>
+          <input class="govuk-file-upload" id="photo" name="photo" type="file" aria-describedby="">
+        </div>
+
+        <button type="submit" class="govuk-button" data-module="govuk-button">Submit application</button>
+      </form>
+    </main>
+      <!-- Footer -->
+    <footer class="govuk-footer" role="contentinfo">
+      <div class="govuk-width-container">
+        <p class="govuk-footer__licence-description">© Crown copyright</p>
+      </div>
+    </footer>
+
+    <!-- GOV.UK JS (must load before we call initAll) -->
+    <script type="module" src="assets/govuk/govuk-frontend-5.12.0.min.js"></script>
+
+    <script>
+      // Run after DOM ready so govuk-frontend has loaded
+      document.addEventListener('DOMContentLoaded', function () {
+        // Safe init of GOV.UK frontend JS if available
+        if (window.GOVUKFrontend && typeof window.GOVUKFrontend.initAll === 'function') {
+          window.GOVUKFrontend.initAll();
+        }
+
+        const form = document.getElementById('applicationForm');
+        const errorSummary = document.querySelector('.govuk-error-summary');
+        const errorList = document.getElementById('error-list');
+
+        const requiredFields = [
+          { id: 'full-name', name: 'Full name' },
+          { id: 'dob', name: 'Date of birth' },
+          { id: 'student-id', name: 'Student ID number' }
+        ];
+
+        form.addEventListener('submit', function (e) {
+          // clear previous errors
+          errorList.innerHTML = '';
+          errorSummary.hidden = true;
+
+          let missing = [];
+
+          requiredFields.forEach(f => {
+            const input = document.getElementById(f.id);
+            const group = document.getElementById('group-' + f.id);
+
+            // Remove previous error classes/messages if present
+            input.classList.remove('govuk-input--error');
+            if (group) group.classList.remove('govuk-form-group--error');
+
+            const prevErr = document.getElementById(f.id + '-error');
+            if (prevErr) prevErr.remove();
+
+            // Normalize value check for inputs (date may return empty string)
+            const val = input.value === undefined ? '' : String(input.value).trim();
+
+            if (!val) {
+              missing.push(f);
+
+              // Add error classes
+              input.classList.add('govuk-input--error');
+              if (group) group.classList.add('govuk-form-group--error');
+
+              // Create inline error message (insert before the input for GOV.UK pattern)
+              const msg = document.createElement('div');
+              msg.className = 'govuk-error-message';
+              msg.id = f.id + '-error';
+              msg.innerHTML = '<span class=\"govuk-visually-hidden\">Error:</span> Please fill out this information';
+              // insert message before the input element if possible
+              if (group && input) {
+                group.insertBefore(msg, input);
+              } else if (input) {
+                input.parentNode.insertBefore(msg, input);
+              }
+
+              // Add aria-describedby so screen readers link field to error
+              const existingDesc = input.getAttribute('aria-describedby') || '';
+              const newDesc = msg.id + (existingDesc ? ' ' + existingDesc : '');
+              input.setAttribute('aria-describedby', newDesc.trim());
+            } else {
+              // If previously had aria-describedby referencing error id, remove only that part
+              const desc = input.getAttribute('aria-describedby') || '';
+              const cleaned = desc.split(' ').filter(x => x !== (f.id + '-error')).join(' ').trim();
+              if (cleaned) input.setAttribute('aria-describedby', cleaned); else input.removeAttribute('aria-describedby');
+            }
+          });
+
+          if (missing.length > 0) {
+            // Prevent submission and show aggregated error summary
+            e.preventDefault();
+
+            missing.forEach(f => {
+              const li = document.createElement('li');
+              const a = document.createElement('a');
+              a.href = '#' + f.id;
+              a.textContent = f.name + ' - please fill out this information';
+              li.appendChild(a);
+              errorList.appendChild(li);
+            });
+
+            errorSummary.hidden = false;
+            // Move focus to the error summary for accessibility
+            errorSummary.focus();
+            // Scroll to top of the page to show error summary
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+          // else allow form to submit normally
+        });
+      });
+    </script>
+  </body>
+</html>
