@@ -9,25 +9,36 @@
   <body class="govuk-template__body">
     <script>window.GOVUKFrontend?.initAll();</script>
 
-
-<header class="govuk-header govuk-header--inverse" role="banner" data-module="govuk-header">
-  <div class="govuk-header__container govuk-width-container">
-    <div class="govuk-header__logo">
-      <a href="index.html" class="govuk-header__link govuk-header__link--homepage">
-        <img src="assets/govuk/assets/images/govuk-crest.svg" class="govuk-header__logotype-crown" width="36" height="32" alt="GOV.UK">
-        <span class="govuk-header__logotype-text">GOV.UK</span>
-      </a>
-    </div>
-  </div>
-</header>
-
+    <header class="govuk-header govuk-header--inverse" role="banner" data-module="govuk-header">
+      <div class="govuk-header__container govuk-width-container">
+        <div class="govuk-header__logo">
+          <a href="index.html" class="govuk-header__link govuk-header__link--homepage">
+            <img src="assets/govuk/assets/images/govuk-crest.svg" class="govuk-header__logotype-crown" width="36" height="32" alt="GOV.UK">
+            <span class="govuk-header__logotype-text">GOV.UK</span>
+          </a>
+        </div>
+      </div>
+    </header>
 
     <main class="govuk-main-wrapper govuk-width-container">
-      <form action="apply.html" method="get">
-        <fieldset class="govuk-fieldset">
+      <div class="govuk-error-summary" id="error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" hidden>
+        <h2 class="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+        <div class="govuk-error-summary__body">
+          <ul class="govuk-list govuk-error-summary__list">
+            <li><a href="#yes">Select ‘Yes’ to continue</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <form id="eligibility-form" action="apply.html" method="get" novalidate>
+        <fieldset class="govuk-fieldset" aria-describedby="student-error">
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
             <h1 class="govuk-fieldset__heading">Are you a full-time student?</h1>
           </legend>
+
+          <p class="govuk-error-message" id="student-error" hidden>
+            <span class="govuk-visually-hidden">Error:</span> Select ‘Yes’ to continue
+          </p>
 
           <div class="govuk-radios" data-module="govuk-radios">
             <div class="govuk-radios__item">
@@ -42,15 +53,37 @@
           </div>
         </fieldset>
 
-        <button class="govuk-button" data-module="govuk-button">Continue</button>
+        <button class="govuk-button" data-module="govuk-button" type="submit">Continue</button>
       </form>
     </main>
 
-    
     <footer class="govuk-footer" role="contentinfo">
       <div class="govuk-width-container">
         <p class="govuk-footer__licence-description">© Crown copyright</p>
       </div>
     </footer>
+
+    <script>
+      const form = document.getElementById('eligibility-form');
+      const errorSummary = document.getElementById('error-summary');
+      const errorMessage = document.getElementById('student-error');
+
+      form.addEventListener('submit', function (e) {
+        const yesSelected = document.getElementById('yes').checked;
+
+        errorSummary.hidden = true;
+        errorMessage.hidden = true;
+        document.querySelector('.govuk-fieldset').classList.remove('govuk-form-group--error');
+
+        if (!yesSelected) {
+          e.preventDefault();
+          errorSummary.hidden = false;
+          errorMessage.hidden = false;
+          document.querySelector('.govuk-fieldset').classList.add('govuk-form-group--error');
+
+          errorSummary.focus();
+        }
+      });
+    </script>
   </body>
 </html>
